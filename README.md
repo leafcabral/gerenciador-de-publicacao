@@ -11,19 +11,24 @@ Os integrantes são:
 - [Vitor Felberg Barcelos](https://github.com/vtkaxx)
 
 ## Formalidades
-Trabalho apresentado à disciplina de Programação Orientada a Objetos II do Curso de Informática para Internet do IFES campus Serra, como requisito parcial para a avaliação
-Orientador: Prof. Fernando Wencelewski Possenti
+Trabalho apresentado à disciplina de Programação IV do Curso de Informática para Internet do IFES campus Serra, como requisito parcial para a avaliação
+Orientadora: Profa. Alessandra Aguiar Vilarinho
 
 ## Requisitos
 - **Python X.Y** ou superior.
 - **Tkinter X.Y** ou superior.
 
 ## Como instalar
-...
+Não há opção de instalação para esse software.
 
 ## Como usar
+Windows:
 ```console
 python src/main.py
+```
+Linux:
+```console
+python3 src/main.py
 ```
 
 ## Atalhos de teclado

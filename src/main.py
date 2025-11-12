@@ -9,9 +9,10 @@ TODO TODO TODO TODO TODO TODO TODO TODO
 
 Autora original: Alessandra Aguiar Vilarinho 
 """
-
 import tkinter as tk
 from tkinter import ttk
+
+import mod
 
 class ChildWindow:
     def __init__(self, parent, title, content):
@@ -19,7 +20,7 @@ class ChildWindow:
         self.window.title(title)
         self.window.minsize(400, 300)
         self.window.resizable(False, False)
-        
+
         # Frame principal
         main_frame = ttk.Frame(self.window, padding="10")
         main_frame.pack(fill=tk.BOTH, expand=False)
@@ -36,79 +37,6 @@ class ChildWindow:
         )
         close_button.pack(pady=10)
 
-class InserirDados:
-    def __init__(self, parent):
-        self.window = tk.Toplevel(parent)
-        self.window.title("Inserir uma nova publicação")
-        self.window.minsize(400, 300)
-        self.window.resizable(False, False)
-
-        main_frame: ttk.Frame = ttk.Frame(self.window, padding="10")
-        main_frame.pack(fill=tk.BOTH, expand=False)
-
-        # LABEL E INPUT DO ID DO TÍTULO
-        titulo_label: ttk.Label = ttk.Label(main_frame, text="ID do título:", font=('Arial', 12))
-        titulo_label.grid(row=0, column=0, padx=(0, 10), pady=10, sticky="w")
-
-        self.titulo_input: tk.Text = tk.Text(main_frame, height=1, width=20)
-        self.titulo_input.grid(row=0, column=1, pady=10, sticky="w")
-
-        self.titulo_input.bind('<KeyPress>', self.VerificarCaractereID)
-        self.titulo_input.bind('<KeyRelease>', self.VerificarCaractereID)
-
-        # LABEL E INPUT DA DATA DO TÍTULO
-
-        data_label: ttk.Label = ttk.Label(main_frame, text="Data do título:", font=('Arial', 12))
-        data_label.grid(row=1, column=0, padx=(0, 10), pady=10, sticky="w")
-
-        self.data_input: tk.Text = tk.Text(main_frame, height=1, width=20)
-        self.data_input.grid(row=1, column=1, pady=10, sticky="w")
-
-        self.data_input.bind('<KeyPress>', self.VerificarCaractereData)
-        self.data_input.bind('<KeyRelease>', self.VerificarCaractereData)
-
-        # BOTÕES:
-
-        cancelar_button = ttk.Button(
-            main_frame, 
-            text="Cancelar", 
-            command=self.window.destroy
-        )
-        cancelar_button.grid(row=2, column=0, pady=10)
-
-        ok = ttk.Button(
-            main_frame, 
-            text="Ok", 
-            command=lambda: self.Input(self.titulo_input)
-        )
-        ok.grid(row=2, column=1, pady=10)
-
-    def VerificarCaractereID(self, event):
-        tam: int = len(self.titulo_input.get("1.0", "end-1c"))
-        LIMITE_CHAR: int = 8
-
-        if tam >= LIMITE_CHAR and event.keysym not in {"BackSpace", "Delete"}:
-            return "break"
-        
-        if not (event.char.isdigit() or event.keysym == "BackSpace"):
-            return "break"
-
-    def VerificarCaractereData(self, event):
-        tam: int = len(self.titulo_input.get("1.0", "end-1c"))
-        LIMITE_CHAR: int = 8
-
-        if tam >= LIMITE_CHAR and event.keysym not in {"BackSpace", "Delete"}:
-            return 'break'
-        
-        if event.char.isdigit() or event.keysym == "BackSpace":
-            return
-        
-        return "break"
-
-    def Input(self, textbox: tk.Text):
-        INPUT: str = textbox.get("1.0", "end-1c")
-
-        print(INPUT)
 
 class MainApplication:
     def __init__(self, root):
@@ -163,7 +91,7 @@ class MainApplication:
         menubar.add_cascade(label="Banco de dados", menu=file_menu)
         file_menu.add_command(
             label="Inserir", 
-            command=lambda: InserirDados(self.root)
+            command=lambda: mod.InserirDados(self.root)
         )
         file_menu.add_separator()
         file_menu.add_command(
