@@ -11,12 +11,14 @@ Os integrantes são:
 - [Vitor Felberg Barcelos](https://github.com/vtkaxx)
 
 ## Formalidades
-Trabalho apresentado à disciplina de Programação IV do Curso de Informática para Internet do IFES campus Serra, como requisito parcial para a avaliação
+Trabalho apresentado à disciplina de Programação IV do Curso de Informática para Internet do IFES campus Serra, como requisito parcial para a avaliação.
 Orientadora: Profa. Alessandra Aguiar Vilarinho
 
 ## Requisitos
 - **Python X.Y** ou superior.
 - **Tkinter X.Y** ou superior.
+- **MySql Connector para Python** (pip install mysql-connector-python)
+- **MySql Server**
 
 ## Como instalar
 Não há opção de instalação para esse software.
