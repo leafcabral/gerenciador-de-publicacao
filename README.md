@@ -1,7 +1,7 @@
 # Gerenciador de Publicações
 
 Projeto de criação de uma aplicação gráfica em Python utilizando a biblioteca *Tkinter* e com conexão ao banco de dados **MySql**.<br>
-Possui a função de gerenciar publicações de livros de uma biblioteca.
+Possui a função de gerenciar publicações de livros em uma biblioteca.
 
 ## Sobre Nós
 Esse projeto foi feito pela ASMbleia, sétima (7ª) equipe de desenvolvimento da disciplina de Programação IV do Curso de Informática para Internet, módulo (semestre) 4.<br>
@@ -18,8 +18,8 @@ Orientadora: Profa. Alessandra Aguiar Vilarinho.
 ## Requisitos
 - **Python X.Y** ou superior.
 - **Tkinter X.Y** ou superior.
-- **MySql Connector para Python**
-- **MySql Server**
+- **[MySql Connector para Python](https://pypi.org/project/mysql-connector-python/)**
+- **[MySql Server](https://www.mysql.com/)**
 
 ## Como instalar
 Não há opção de instalação para esse software.

@@ -5,12 +5,142 @@ ASMbleia
 	Rafael Cabral Lopes
 	Vitor Felberg Barcelos
 Serra, Brasil
-Programa para gerenciamento de banco de dados sobre publicações de livros. 
+Programa para gerenciamento de banco de dados sobre publicações de livros.
+
+Classe MainApplication originalmente por: Alessandra Aguiar Vilarinho.
 """
 import tkinter as tk
 from tkinter import ttk
 
 import mysql.connector
+
+from webbrowser import open_new
+
+class MainApplication:
+	def __init__(self, root):
+		self.root = root
+		self.root.title("Gerenciador de Publicações")
+		self.root.geometry("800x600")
+
+		self.root.minsize(800, 600)
+		
+		# Configurar o menu principal
+		self.setup_menu()
+		
+		# Conteúdo da janela principal
+		self.setup_content()
+	
+	def setup_content(self):
+		# Frame principal
+		main_frame = ttk.Frame(self.root, padding="10")
+		main_frame.pack(fill=tk.BOTH, expand=True)
+		
+		# Título
+		title_label = ttk.Label(
+			main_frame, 
+			text="Bem-vindo(a) ao Gerenciador de Publicações!", 
+			font=('Arial', 16, 'bold')
+		)
+		title_label.pack()
+		
+		# Descrição
+		desc_label = ttk.Label(
+			main_frame, 
+			text="Lorem ipsum",
+			font=('Arial', 12, 'bold')
+		)
+		desc_label.pack(pady=20)
+		
+		# Rodapé
+		footer_label = ttk.Label(
+			main_frame, 
+			text="Lorem ipsum",
+			font=('Arial', 10, 'bold')
+		)
+		footer_label.pack(side=tk.BOTTOM, pady=10)
+	
+	def setup_menu(self):
+		# Criar a barra de menu
+		menubar = tk.Menu(self.root)
+		self.root.config(menu=menubar)
+		
+		# Menu Empregado
+		file_menu = tk.Menu(menubar, tearoff=0)
+		menubar.add_cascade(label="Banco de dados", menu=file_menu)
+		file_menu.add_command(
+			label="Inserir uma publicação", 
+			command=lambda: mod.InserirDados(self.root)
+		)
+		file_menu.add_separator()
+		file_menu.add_command(
+			label="Alterar uma publicação", 
+			command=lambda: mod.AlterarDados(self.root)
+		)
+		file_menu.add_separator()
+		file_menu.add_command(
+			label="Excluir uma publicação", 
+			command=lambda: ChildWindow(self.root, "Excluir empregado", "Aqui entra sua janela com\n\n\nlógica para excluir um empregado")
+		)
+		file_menu.add_separator()
+		file_menu.add_command(
+			label="Consultar publicação por critério", 
+			command=lambda: ChildWindow(self.root, "Consultar por critério", "Aqui entra sua janela com\n\n\nlógica para consultar um empregado por um critério")
+		)
+		file_menu.add_separator()
+		file_menu.add_command(
+			label="Consultar todas as publiações", 
+			command=lambda: ChildWindow(self.root, "Consultar todos", "Aqui entra sua janela com\n\n\nlógica para consultar todos empregados")
+		)
+		file_menu.add_separator()
+		file_menu.add_command(label="Sair", command=self.root.quit)
+		
+		# Menu Ajuda
+		help_menu = tk.Menu(menubar, tearoff=0)
+		menubar.add_cascade(label="Ajuda", menu=help_menu)
+		help_menu.add_command(
+			label="Como usar o Gerenciador", 
+			command=lambda: ChildWindow(self.root, "Terminando as disciplinas de programação com a profa. Alessandra.", "Adeus Programação em Python")
+		)
+		help_menu.add_separator()
+		help_menu.add_command(label="Sobre a aplicação", command=self.show_about)
+	
+	def show_about(self):
+		from tkinter import font
+
+		about_window = tk.Toplevel(self.root)
+		about_window.title("Sobre a aplicação")
+		about_window.geometry("350x350")
+		about_window.resizable(False, False)
+
+		main_frame: ttk.Frame = ttk.Frame(about_window, padding=10)
+		main_frame.pack(fill=tk.BOTH, expand=True)
+
+		fonte_underline: font.Font = font.Font(family="Arial", size=10, underline=True)
+		
+		# FRAME E LABELS SUPERIORES
+		labels_superiores_frame: ttk.Frame = ttk.Frame(main_frame)
+		labels_superiores_frame.pack(fill=tk.BOTH, expand=True)
+
+		ttk.Label(labels_superiores_frame, text="Gerenciador de Publicações", font=('Arial', 14)).pack()
+		ttk.Label(labels_superiores_frame, text="Versão 1.0").pack()
+		ttk.Label(labels_superiores_frame, text="Desenvolvido por ASMbleia.").pack()
+		ttk.Label(labels_superiores_frame, text="Autora original: Alessandra Aguiar.").pack(pady=(0, 50))
+
+		# FRAME E LABELS INFERIORES
+		labels_inferiores_frame: ttk.Frame = ttk.Frame(main_frame)
+		labels_inferiores_frame.pack(fill=tk.X, pady=(20,0))
+
+		ttk.Label(labels_inferiores_frame, text="Este software vem com nenhuma garantia.").pack()
+
+		label_licenca: ttk.Label = ttk.Label(labels_inferiores_frame, text="Licença: GPLv3.0", font=fonte_underline, foreground="blue", cursor="hand2")
+
+		label_licenca.bind("<Button-1>", lambda e: open_new("https://www.gnu.org/licenses/gpl-3.0.en.html"))
+		label_licenca.pack()
+
+		label_source: ttk.Label = ttk.Label(labels_inferiores_frame, text="Acessar código-fonte",font=fonte_underline, foreground="blue", cursor="hand2")
+
+		label_source.bind("<Button-1>", lambda e: open_new("https://github.com/leafcabral/nome-temporario"))
+		label_source.pack()
 
 class InserirDados:
 	def __init__(self, parent):
