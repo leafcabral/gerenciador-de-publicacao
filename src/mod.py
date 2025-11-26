@@ -88,12 +88,12 @@ class MainApplication:
 		menubar.add_cascade(label="Banco de dados", menu=file_menu)
 		file_menu.add_command(
 			label="Inserir uma publicação", 
-			command=lambda: mod.InserirDados(self.root)
+			command=lambda: InserirDados(self.root)
 		)
 		file_menu.add_separator()
 		file_menu.add_command(
 			label="Alterar uma publicação", 
-			command=lambda: mod.AlterarDados(self.root)
+			command=lambda: AlterarDados(self.root)
 		)
 		file_menu.add_separator()
 		file_menu.add_command(
