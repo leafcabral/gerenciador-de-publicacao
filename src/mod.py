@@ -69,17 +69,17 @@ class MainApplication:
 		menubar.add_cascade(label="Banco de dados", menu=file_menu)
 		file_menu.add_command(
 			label="Inserir uma publicação", 
-			command=lambda: mod.InserirDados(self.root)
+			command=lambda: InserirDados(self.root)
 		)
 		file_menu.add_separator()
 		file_menu.add_command(
 			label="Alterar uma publicação", 
-			command=lambda: mod.AlterarDados(self.root)
+			command=lambda: AlterarDados(self.root)
 		)
 		file_menu.add_separator()
 		file_menu.add_command(
 			label="Excluir uma publicação", 
-			command=lambda: ChildWindow(self.root, "Excluir empregado", "Aqui entra sua janela com\n\n\nlógica para excluir um empregado")
+			command=lambda: DeletarDados(self.root)
 		)
 		file_menu.add_separator()
 		file_menu.add_command(
@@ -468,6 +468,121 @@ class AlterarDados:
 
 		comando = comando[:-1]
 		comando += f" WHERE ID_TITULO = {ID}"
+
+		cursor.execute(comando)
+		db.commit()
+
+class DeletarDados:
+	def __init__(self, parent):
+		# FRAME E WINDOW PRINCIPAL
+		self.window = tk.Toplevel(parent)
+		self.window.title("Deletar uma publicação")
+		self.window.minsize(400, 350)
+		self.window.maxsize(400, 350)
+		self.window.resizable(False, False)
+
+		main_frame: ttk.Frame = ttk.Frame(self.window, padding="10")
+		main_frame.pack(fill=tk.BOTH, expand=True)
+
+		# FRAME DOS INPUTS
+		conteudo_frame: ttk.Frame = ttk.Frame(main_frame)
+		conteudo_frame.pack(fill=tk.BOTH, expand=True)
+
+		# LABEL E INPUT DO ID DO LIVRO
+		id_label: ttk.Label = ttk.Label(conteudo_frame, text="ID do livro*:", font=('Arial', 12))
+		id_label.grid(row=0, column=0, padx=10, pady=10, sticky="w")
+
+		self.id_input: tk.Text = tk.Text(conteudo_frame, height=1, width=20)
+		self.id_input.grid(row=0, column=1, pady=10, sticky="w")
+
+		self.id_input.bind('<KeyPress>', self.verificar_caractere_ID)
+		self.id_input.bind('<KeyRelease>', self.verificar_caractere_ID)
+
+		# LABEL E INPUT DO TÍTULO DO LIVRO
+		titulo_label: ttk.Label = ttk.Label(conteudo_frame, text="Título do livro:", font=('Arial', 12))
+		titulo_label.grid(row=1, column=0, padx=10, pady=10, sticky="w")
+
+		self.titulo_input: tk.Text = tk.Text(conteudo_frame, height=1, width=20)
+		self.titulo_input.grid(row=1, column=1, pady=10, sticky="w")
+
+		self.titulo_input.bind('<KeyPress>', self.verificar_caractere_titulo)
+		self.titulo_input.bind('<KeyRelease>', self.verificar_caractere_titulo)
+
+		# BOTÃO RADIO
+		radio_frame: ttk.Frame = ttk.Frame(main_frame)
+		radio_frame.pack(fill=tk.X, pady=(20, 0))
+
+		self.radio_value = tk.StringVar(radio_frame, "ID")
+
+		radio_values = {"Deletar via ID" : "ID", 
+        		"Deletar via nome" : "Nome"} 
+
+		for (text, value) in radio_values.items(): 
+			ttk.Radiobutton(radio_frame, text = text, variable = self.radio_value, value = value).pack(side = 'top', ipady = 5) 
+
+		# LABEL DE ERRO
+		self.erro_label: ttk.Label = ttk.Label(conteudo_frame, text="", font=('Arial', 12), foreground="red", wraplength=350, justify="left", anchor="w")
+		self.erro_label.grid(row=4, column=0, columnspan=2, pady=10, sticky="we")
+
+		# BOTÕES
+		botoes_frame: ttk.Frame = ttk.Frame(main_frame)
+		botoes_frame.pack(fill=tk.X, pady=(20, 0))
+
+		ok_button = ttk.Button(botoes_frame, text="Ok", command=lambda: self.input(self.id_input,self.titulo_input))
+		ok_button.pack(side=tk.RIGHT, padx=(5,0))
+
+		cancelar_button = ttk.Button(botoes_frame, text="Cancelar", command=self.window.destroy)
+		cancelar_button.pack(side=tk.RIGHT, padx=(0,5))
+
+	def verificar_caractere_ID(self, event) -> None:
+		tam: int = len(self.id_input.get("1.0", "end-1c"))
+		LIMITE_CHAR: int = 8
+
+		if tam >= LIMITE_CHAR and event.keysym not in {"BackSpace", "Delete"}:
+			return "break"
+		
+		if not (event.char.isdigit() or event.keysym == "BackSpace"):
+			return "break"
+
+	def verificar_caractere_titulo(self, event) -> None:
+		tam: int = len(self.titulo_input.get("1.0", "end-1c"))
+		LIMITE_CHAR: int = 80
+
+		if tam >= LIMITE_CHAR and event.keysym not in {"BackSpace", "Delete"}:
+			return 'break'
+
+	def erro(self, texto_erro: str):
+		self.erro_label.config(text=texto_erro)
+
+	def input(self, id_text: tk.Text,titulo: tk.Text):
+		ID: str = id_text.get("1.0", "end-1c")
+		TITULO: str = titulo.get("1.0", "end-1c").strip()
+		if self.radio_value.get() == "ID":
+			if len(ID) == 0:
+				self.erro("Digite o ID do livro que deseja alterar.")
+				return
+		else:
+			if len(TITULO) == 0:
+				self.erro("Digite o nome do livro que deseja alterar.")
+				return
+			
+		self.erro("")
+
+		db = mysql.connector.connect(
+			host="localhost",
+			user="root",
+			password="serra",
+			database="publicacao"
+		)
+
+		cursor = db.cursor()
+
+		comando: str = "SET FOREIGN_KEY_CHECKS = 0;DELETE FROM titulos"
+
+		if self.radio_value.get() == "ID":
+			comando += f" WHERE ID_TITULO = {ID}"
+		else:
+			comando += f" WHERE TITULO_LIVRO = {TITULO};SET FOREIGN_KEY_CHECKS = 1;"
 
 		cursor.execute(comando)
 		db.commit()
