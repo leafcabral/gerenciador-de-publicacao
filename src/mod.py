@@ -24,12 +24,31 @@ class MainApplication:
 
 		self.root.minsize(800, 600)
 		
+		# Criar database pelo arquivo, se não existir
+		self.init_db("publicacao", "res/sql/BDPublicacao.sql")
+
 		# Configurar o menu principal
 		self.setup_menu()
 		
 		# Conteúdo da janela principal
 		self.setup_content()
 	
+	def init_db(self, name: str, file_name: str):
+		db = mysql.connector.connect(
+			host="localhost",
+			user="root",
+			password="serra"
+		)
+		cursor = db.cursor()
+		cursor.execute(
+			"SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = %s",
+			(name, )
+		)
+
+		if not cursor.fetchone():
+			with open(file_name, "r", encoding="utf-8") as script:
+				cursor.execute(script.read(), multi=True)
+
 	def setup_content(self):
 		# Frame principal
 		main_frame = ttk.Frame(self.root, padding="10")
@@ -448,7 +467,7 @@ class AlterarDados:
 		db = mysql.connector.connect(
 			host="localhost",
 			user="root",
-			password="root",
+			password="serra",
 			database="publicacao"
 		)
 
