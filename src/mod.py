@@ -70,7 +70,7 @@ class DatabaseManager:
 			return False
 	#end_def
 
-	def alterar_publicacao(self, id: str, titulo: str = None, tipo: str = None, data: str = None) -> bool:
+	def alterar_publicacao(self, id: str, titulo: str = "", tipo: str = "", data: str = "") -> bool:
 		fields = []
 		params = []
 
@@ -226,9 +226,212 @@ class GraphicsManager:
 	def create_dialog_window(self, title: str, message: str) -> tk.Toplevel:
 		return self.create_window(title, "300x200", False)
 	#end_def
+	def create_frame(self, parent, padding: int = 10) -> ttk.Frame:
+		frame = ttk.Frame(parent, padding=padding)
+		frame.pack(fill=tk.BOTH, expand=True)
+		return frame
+	#end_def
+	def create_entry(self, parent, width: int = 20) -> tk.Text:
+		return tk.Text(parent, height=1, width=width)
+	#end_def
+	def create_label(self, parent, text: str, font: tuple = ('Arial', 12)) -> ttk.Label:
+		return ttk.Label(parent, text=text, font=font)
+	#end_def
+	def create_button(self, parent, text: str, command) -> ttk.Button:
+		return ttk.Button(parent, text=text, command=command)
+	#end_def
 #end_class
 
 class MainApplication:
+	def __init__(self, root):
+		self.root = root
+
+		self.db_manager = DatabaseManager(
+			host="localhost",
+			user="root",
+			password="23204100",
+			database="publicacao"
+		)
+		self.graphics_manager = GraphicsManager(self.root)
+		
+		self.db_manager.connect()
+		self.setup_menu_commands()
+	#end_def
+
+	def setup_menu_commands(self):
+		gm = self.graphics_manager
+
+		gm.inserir_titulo = self.inserir_titulo
+		gm.alterar_titulo = self.alterar_titulo
+		gm.excluir_titulo = self.excluir_titulo
+		gm.consultar_titulos = self.consultar_titulos
+		gm.consultar_titulo_criterio = self.consultar_titulo_criterio
+		gm.mostrar_ajuda = self.mostrar_ajuda
+		gm.mostrar_licenca = self.mostrar_licenca
+		gm.mostrar_sobre = self.mostrar_sobre
+	#end_def
+
+	def inserir_titulo(self):
+		window = self.graphics_manager.create_window("Inserir Título", "400x300", False)
+		main_frame = self.graphics_manager.create_frame(window)
+
+		id_label = self.graphics_manager.create_label(main_frame, "ID do livro:")
+		id_label.grid(row=0, column=0, padx=10, pady=10, sticky="w")
+		id_input = self.graphics_manager.create_entry(main_frame)
+		id_input.grid(row=0, column=1, pady=10, sticky="w")
+
+		titulo_label = self.graphics_manager.create_label(main_frame, "Título do livro:")
+		titulo_label.grid(row=1, column=0, padx=10, pady=10, sticky="w")
+		titulo_input = self.graphics_manager.create_entry(main_frame)
+		titulo_input.grid(row=1, column=1, pady=10, sticky="w")
+
+		tipo_label = self.graphics_manager.create_label(main_frame, "Tipo de livro:")
+		tipo_label.grid(row=2, column=0, padx=10, pady=10, sticky="w")
+		tipo_input = self.graphics_manager.create_entry(main_frame)
+		tipo_input.grid(row=2, column=1, pady=10, sticky="w")
+
+		data_label = self.graphics_manager.create_label(main_frame, "Data de pub. do livro:")
+		data_label.grid(row=3, column=0, padx=10, pady=10, sticky="w")
+		data_input = self.graphics_manager.create_entry(main_frame)
+		data_input.grid(row=3, column=1, pady=10, sticky="w")
+
+		erro_label = self.graphics_manager.create_label(main_frame, "", font=('Arial', 12))
+		erro_label.config(foreground="red", wraplength=350, justify="left", anchor="w")
+		erro_label.grid(row=4, column=0, columnspan=2, pady=10, sticky="we")
+
+		botoes_frame = self.graphics_manager.create_frame(main_frame, padding=0)
+		ok_button = ttk.Button(
+			botoes_frame,
+			text="Ok",
+			command=lambda: self.handle_inserir_titulo(
+				id_input,
+				titulo_input,
+				tipo_input,
+				data_input,
+				erro_label,
+				window
+			)
+		)
+		ok_button.pack(side=tk.RIGHT, padx=(5,0))
+		cancelar_button = ttk.Button(botoes_frame, text="Cancelar", command=window.destroy)
+		cancelar_button.pack(side=tk.RIGHT, padx=(0,5))
+	#end_def
+	def verificar_formatacao_data(self, data: str) -> bool:
+		i: int = 1
+		char_formatacao: list = ['-', ' ', '/']
+
+		if len(data) != 10:
+			return False
+
+		# formato correto: yyyy-mm-dd, yyyy mm dd, yyyy/mm/dd
+		for char in data:
+			if char.isnumeric() and (i <= 4 or (i >= 6 and i < 8) or i >= 9):
+				i += 1
+			elif char in char_formatacao and (i == 5 or i == 8):
+				i += 1
+			else:
+				return False
+		
+		if int(data[:4]) == 0 or (int(data[5:7]) == 0 or int(data[5:7]) > 12) or (int(data[9:]) == 0 or int(data[9:]) > 31):
+			return False
+		
+		return True
+	#end_def
+	def handle_inserir_titulo(self, id_input, titulo_input, tipo_input, data_input, erro_label, window):
+		ID = id_input.get("1.0", "end-1c").strip()
+		TITULO = titulo_input.get("1.0", "end-1c").strip()
+		TIPO = tipo_input.get("1.0", "end-1c").strip()
+		DATA = data_input.get("1.0", "end-1c").strip()
+
+		if not ID or not TITULO or not TIPO or not DATA:
+			erro_label.config(text="Dados inválidos: um ou mais campos estão vazios.")
+			return
+		elif not self.verificar_formatacao_data(DATA):
+			erro_label.config(text="Verifique se a formatação da data está correta: yyyy-mm-dd, yyyy mm dd ou yyyy/mm/dd.\nOu então verifique se digitou ano, mês ou dia válido.")
+			return
+
+		if self.db_manager.inserir_publicacao(ID, TITULO, TIPO, DATA):
+			erro_label.config(text="Publicação inserida com sucesso!", foreground="green")
+		else:
+			erro_label.config(text="Erro ao inserir publicação: ID já existe no banco de dados.")
+	#end_def
+
+	def alterar_titulo(self):
+		window = self.graphics_manager.create_window("Alterar Título", "400x300", False)
+		main_frame = self.graphics_manager.create_frame(window)
+
+		id_label = self.graphics_manager.create_label(main_frame, "ID do livro*:")
+		id_label.grid(row=0, column=0, padx=10, pady=10, sticky="w")
+		id_input = self.graphics_manager.create_entry(main_frame)
+		id_input.grid(row=0, column=1, pady=10, sticky="w")
+
+		titulo_label = self.graphics_manager.create_label(main_frame, "Título do livro:")
+		titulo_label.grid(row=1, column=0, padx=10, pady=10, sticky="w")
+		titulo_input = self.graphics_manager.create_entry(main_frame)
+		titulo_input.grid(row=1, column=1, pady=10, sticky="w")
+
+		tipo_label = self.graphics_manager.create_label(main_frame, "Tipo de livro:")
+		tipo_label.grid(row=2, column=0, padx=10, pady=10, sticky="w")
+		tipo_input = self.graphics_manager.create_entry(main_frame)
+		tipo_input.grid(row=2, column=1, pady=10, sticky="w")
+
+		data_label = self.graphics_manager.create_label(main_frame, "Data de pub. do livro:")
+		data_label.grid(row=3, column=0, padx=10, pady=10, sticky="w")
+		data_input = self.graphics_manager.create_entry(main_frame)
+		data_input.grid(row=3, column=1, pady=10, sticky="w")
+
+		erro_label = self.graphics_manager.create_label(main_frame, "", font=('Arial', 12))
+		erro_label.config(foreground="red", wraplength=350, justify="left", anchor="w")
+		erro_label.grid(row=4, column=0, columnspan=2, pady=10, sticky="we")
+
+		botoes_frame = self.graphics_manager.create_frame(main_frame, padding=0)
+		ok_button = ttk.Button(
+			botoes_frame,
+			text="Ok",
+			command=lambda: self.handle_alterar_titulo(
+				id_input,
+				titulo_input,
+				tipo_input,
+				data_input,
+				erro_label,
+				window
+			)
+		)
+		ok_button.pack(side=tk.RIGHT, padx=(5,0))
+		cancelar_button = ttk.Button(botoes_frame, text="Cancelar", command=window.destroy)
+		cancelar_button.pack(side=tk.RIGHT, padx=(0,5))
+	#end_def
+	def handle_alterar_titulo(self, id_input, titulo_input, tipo_input, data_input, erro_label, window):
+		ID = id_input.get("1.0", "end-1c").strip()
+		TITULO = titulo_input.get("1.0", "end-1c").strip()
+		TIPO = tipo_input.get("1.0", "end-1c").strip()
+		DATA = data_input.get("1.0", "end-1c").strip()
+
+		if not ID:
+			erro_label.config(text="Digite o ID do livro que deseja alterar.")
+			return
+		elif not TITULO and not TIPO and not DATA:
+			erro_label.config(text="Dados inválidos: todos os campos estão vazios")
+			return
+		elif DATA and not self.verificar_formatacao_data(DATA):
+			erro_label.config(text="Verifique se a formatação da data está correta: yyyy-mm-dd, yyyy mm dd ou yyyy/mm/dd.\nOu então verifique se digitou ano, mês ou dia válido.")
+			return
+
+		if self.db_manager.alterar_publicacao(ID, TITULO, TIPO, DATA):
+			erro_label.config(text="Publicação alterada com sucesso!", foreground="green")
+		else:
+			erro_label.config(text="Erro ao alterar publicação: verifique se o ID existe no banco de dados.")
+	#end_def
+
+	def excluir_titulo(self): pass
+	def consultar_titulos(self): pass
+	def consultar_titulo_criterio(self): pass
+	def mostrar_ajuda(self): pass
+	def mostrar_licenca(self): pass
+	def mostrar_sobre(self): pass
+#end_class
+
+class DeprecatedApplication:
 	def __init__(self, root):
 		self.root = root
 		self.root.title("Gerenciador de Publicações")

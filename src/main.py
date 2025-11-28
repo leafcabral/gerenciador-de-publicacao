@@ -27,7 +27,7 @@ def main() -> None:
 	import mod
 	
 	root = tk.Tk()
-	app = mod.MainApplication(root)
+	app = mod.DeprecatedApplication(root)
 	root.mainloop()
 
 if __name__ == "__main__":
