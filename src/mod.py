@@ -11,10 +11,106 @@ Classe MainApplication originalmente por: Alessandra Aguiar Vilarinho.
 """
 import tkinter as tk
 from tkinter import ttk
-
 import mysql.connector
-
 from webbrowser import open_new
+
+class DatabaseManager:
+	def __init__(self, host: str, user: str, password: str, database: str):
+		self.host = host
+		self.user = user
+		self.password = password
+		self.database = database
+		self.connection = None
+	#end_def
+
+	def connect(self):
+		self.connection = mysql.connector.connect(
+			host=self.host,
+			user=self.user,
+			password=self.password
+		)
+		cursor = self.connection.cursor()
+		cursor.execute(
+			"SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = %s",
+			(self.database)
+		)
+
+		if not cursor.fetchone():
+			with open(f"res/sql/BD{self.database.capitalize()}.sql", "r", encoding="utf-8") as script:
+				cursor.execute(script.read(), multi=True)
+
+		self.connection.database = self.database
+	#end_def
+
+	def disconnect(self) -> None:
+		if self.connection:
+			self.connection.close()
+			self.connection = None
+	#end_def
+
+	def execute_query(self, query: str, params: tuple = ()) -> list:
+		cursor = self.connection.cursor()
+		cursor.execute(query, params)
+
+		if query.strip().upper().startswith("SELECT"):
+			return cursor.fetchall()
+		else:
+			self.connection.commit()
+			return []
+	#end_def
+
+	def inserir_publicacao(self, id: str, titulo: str, tipo: str, data: str) -> bool:
+		query = "INSERT INTO titulos (ID_TITULO, TITULO_LIVRO, TIPO_LIVRO, DATA_PUBLICACAO) VALUES (%s, %s, %s, %s)"
+		check_query = "SELECT * FROM titulos WHERE id = %s"
+
+		if not self.execute_query(check_query, (id, )):
+			self.execute_query(query, (id, titulo, tipo, data))
+			return True
+		else:
+			return False
+	#end_def
+
+	def alterar_publicacao(self, id: str, titulo: str = None, tipo: str = None, data: str = None) -> bool:
+		fields = []
+		params = []
+
+		if titulo:
+			fields.append("TITULO_LIVRO = %s")
+			params.append(titulo.strip())
+		if tipo:
+			fields.append("TIPO_LIVRO = %s")
+			params.append(tipo.strip())
+		if data:
+			fields.append("DATA_PUBLICACAO = %s")
+			params.append(data.strip())
+
+		if not fields:
+			return False
+		params.append(id)
+		query = f"UPDATE titulos SET {', '.join(fields)} WHERE ID_TITULO = %s"
+		self.execute_query(query, tuple(params))
+		return True
+	#end_def
+
+	def deletar_publicacao(self, id: str, titulo: str, pelo_id: bool) -> bool:
+		self.execute_query("SET FOREIGN_KEY_CHECKS = 0")
+		where_clause = f"ID_TITULO = '{id.strip()}'" if pelo_id else f"TITULO_LIVRO = {titulo.strip()}'"
+		query = f"DELETE FROM titulos WHERE {where_clause}"
+		check_query = f"SELECT * FROM titulos WHERE {where_clause}"
+
+		if self.execute_query(check_query):
+			self.execute_query(query)
+			self.execute_query("SET FOREIGN_KEY_CHECKS = 1")
+			return True
+		else:
+			self.execute_query("SET FOREIGN_KEY_CHECKS = 1")
+			return False
+	#end_def
+
+	def consultar_todas_publicacoes(self) -> list:
+		query = "SELECT * FROM titulos"
+		return self.execute_query(query)
+#end_class
 
 class MainApplication:
 	def __init__(self, root):
@@ -37,7 +133,7 @@ class MainApplication:
 		db = mysql.connector.connect(
 			host="localhost",
 			user="root",
-			password="Vitor2206@"
+			password="serra"
 		)
 		cursor = db.cursor()
 		cursor.execute(
