@@ -271,6 +271,28 @@ class MainApplication:
 		gm.mostrar_sobre = self.mostrar_sobre
 	#end_def
 
+	def verificar_formatacao_data(self, data: str) -> bool:
+		i: int = 1
+		char_formatacao: list = ['-', ' ', '/']
+
+		if len(data) != 10:
+			return False
+
+		# formato correto: yyyy-mm-dd, yyyy mm dd, yyyy/mm/dd
+		for char in data:
+			if char.isnumeric() and (i <= 4 or (i >= 6 and i < 8) or i >= 9):
+				i += 1
+			elif char in char_formatacao and (i == 5 or i == 8):
+				i += 1
+			else:
+				return False
+		
+		if int(data[:4]) == 0 or (int(data[5:7]) == 0 or int(data[5:7]) > 12) or (int(data[9:]) == 0 or int(data[9:]) > 31):
+			return False
+		
+		return True
+	#end_def
+
 	def inserir_titulo(self):
 		window = self.graphics_manager.create_window("Inserir Título", "400x300", False)
 		main_frame = self.graphics_manager.create_frame(window)
@@ -315,27 +337,6 @@ class MainApplication:
 		ok_button.pack(side=tk.RIGHT, padx=(5,0))
 		cancelar_button = ttk.Button(botoes_frame, text="Cancelar", command=window.destroy)
 		cancelar_button.pack(side=tk.RIGHT, padx=(0,5))
-	#end_def
-	def verificar_formatacao_data(self, data: str) -> bool:
-		i: int = 1
-		char_formatacao: list = ['-', ' ', '/']
-
-		if len(data) != 10:
-			return False
-
-		# formato correto: yyyy-mm-dd, yyyy mm dd, yyyy/mm/dd
-		for char in data:
-			if char.isnumeric() and (i <= 4 or (i >= 6 and i < 8) or i >= 9):
-				i += 1
-			elif char in char_formatacao and (i == 5 or i == 8):
-				i += 1
-			else:
-				return False
-		
-		if int(data[:4]) == 0 or (int(data[5:7]) == 0 or int(data[5:7]) > 12) or (int(data[9:]) == 0 or int(data[9:]) > 31):
-			return False
-		
-		return True
 	#end_def
 	def handle_inserir_titulo(self, id_input, titulo_input, tipo_input, data_input, erro_label, window):
 		ID = id_input.get("1.0", "end-1c").strip()
@@ -423,9 +424,95 @@ class MainApplication:
 			erro_label.config(text="Erro ao alterar publicação: verifique se o ID existe no banco de dados.")
 	#end_def
 
-	def excluir_titulo(self): pass
-	def consultar_titulos(self): pass
+	def excluir_titulo(self): 
+		window = self.graphics_manager.create_window("Excluir Título", "400x250", False)
+		main_frame = self.graphics_manager.create_frame(window)
+
+		id_label = self.graphics_manager.create_label(main_frame, "ID do livro:")
+		id_label.grid(row=0, column=0, padx=10, pady=10, sticky="w")
+		id_input = self.graphics_manager.create_entry(main_frame)
+		id_input.grid(row=0, column=1, pady=10, sticky="w")
+
+		titulo_label = self.graphics_manager.create_label(main_frame, "Título do livro:")
+		titulo_label.grid(row=1, column=0, padx=10, pady=10, sticky="w")
+		titulo_input = self.graphics_manager.create_entry(main_frame)
+		titulo_input.grid(row=1, column=1, pady=10, sticky="w")
+
+		radio_frame = self.graphics_manager.create_frame(main_frame, padding=0)
+		radio_label = self.graphics_manager.create_label(radio_frame, "Escolha o critério de exclusão:")
+		radio_label.pack(side=tk.LEFT, padx=(0,10))
+		radio_var = tk.StringVar(value="deletar_via")
+		radio_values = [("Deletar via ID", "id"), ("Deletar via Título", "titulo")]
+		for text, value in radio_values:
+			radio_button = ttk.Radiobutton(radio_frame, text=text, variable=radio_var, value=value)
+			radio_button.pack(side=tk.LEFT)
+		#end_for
+		#radio_frame.grid(row=3, column=0, columnspan=2, pady=10, sticky="w")
+
+		erro_label = self.graphics_manager.create_label(main_frame, "", font=('Arial', 12))
+		erro_label.config(foreground="red", wraplength=350, justify="left", anchor="w")
+		erro_label.grid(row=2, column=0, columnspan=2, pady=10, sticky="we")
+
+		botoes_frame = self.graphics_manager.create_frame(main_frame, padding=0)
+		ok_button = ttk.Button(
+			botoes_frame,
+			text="Ok",
+			command=lambda: self.handle_excluir_titulo(
+				id_input,
+				titulo_input,
+				radio_var,
+				erro_label
+			)
+		)
+		ok_button.pack(side=tk.RIGHT, padx=(5,0))
+		cancelar_button = ttk.Button(botoes_frame, text="Cancelar", command=window.destroy)
+		cancelar_button.pack(side=tk.RIGHT, padx=(0,5))
+	#end_def
+	def handle_excluir_titulo(self, id_input, titulo_input, radio_var, erro_label):
+		ID = id_input.get("1.0", "end-1c").strip()
+		TITULO = titulo_input.get("1.0", "end-1c").strip()
+		CRITERIO = radio_var.get()
+
+		if CRITERIO == "id" and not ID:
+			erro_label.config(text="Digite o ID do livro que deseja excluir.")
+			return
+		elif CRITERIO == "titulo" and not TITULO:
+			erro_label.config(text="Digite o Título do livro que deseja excluir.")
+			return
+
+		PELO_ID = CRITERIO == "id"
+
+		if self.db_manager.deletar_publicacao(ID, TITULO, PELO_ID):
+			erro_label.config(text="Publicação excluída com sucesso!", foreground="green")
+		else:
+			erro_label.config(text="Erro ao excluir publicação: verifique se o ID/Título existe no banco de dados.")
+	#end_def
+
+	def consultar_titulos(self):
+		window = self.graphics_manager.create_window("Consultar Títulos", "600x400", True)
+		main_frame = self.graphics_manager.create_frame(window)
+
+		results = self.db_manager.consultar_todas_publicacoes()
+		if not results:
+			no_data_label = self.graphics_manager.create_label(main_frame, "Nenhuma publicação encontrada no banco de dados.")
+			no_data_label.pack(pady=20)
+			return
+		#end_if
+
+		column_names = [i[0] for i in self.db_manager.execute_query("SHOW COLUMNS FROM titulos")]
+		tree = ttk.Treeview(main_frame, columns=column_names, show='headings')
+		for col in column_names:
+			tree.heading(col, text=col)
+			tree.column(col, width=150)
+		for row in results:
+			tree.insert('', tk.END, values=row)
+		tree.pack(fill=tk.BOTH, expand=True)
+	#end_def
+		
+
 	def consultar_titulo_criterio(self): pass
+	def handle_consultar_titulo_criterio(self): pass
+
 	def mostrar_ajuda(self): pass
 	def mostrar_licenca(self): pass
 	def mostrar_sobre(self): pass
