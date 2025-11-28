@@ -110,6 +110,122 @@ class DatabaseManager:
 	def consultar_todas_publicacoes(self) -> list:
 		query = "SELECT * FROM titulos"
 		return self.execute_query(query)
+	#end_def
+#end_class
+
+class GraphicsManager:
+	def __init__(self, root):
+		self.root = root
+		self.root.title("Gerenciador de Publicações")
+		self.root.geometry("800x600")
+		self.root.minsize(800, 600)
+		
+		self.setup_layout()
+		self.setup_content()
+	#end_def
+
+	def setup_layout(self):
+		menubar = tk.Menu(self.root)
+		self.root.config(menu=menubar)
+		
+		arq_menu = tk.Menu(menubar, tearoff=0)
+		menubar.add_cascade(label="Arquivo", menu=arq_menu)
+		arq_menu.add_command(label="Sair", command=self.root.quit)
+
+		titulo_menu = tk.Menu(menubar, tearoff=0)
+		menubar.add_cascade(label="Título", menu=titulo_menu)
+		titulo_menu.add_command(
+			label="Inserir título",
+			command=self.inserir_titulo
+		)
+		titulo_menu.add_command(
+			label="Alterar título",
+			command=self.alterar_titulo
+		)
+		titulo_menu.add_command(
+			label="Excluir título",
+			command=self.excluir_titulo
+		)
+		titulo_menu.add_separator()
+		titulo_menu.add_command(
+			label="Consultar todos os títulos",
+			command=self.consultar_titulos
+		)
+		titulo_menu.add_command(
+			label="Consultar título por critério",
+			command=self.consultar_titulo_criterio
+		)
+
+		ajuda_menu = tk.Menu(menubar, tearoff=0)
+		menubar.add_cascade(label="Ajuda", menu=ajuda_menu)
+		ajuda_menu.add_command(
+			label="Como usar o Gerenciador", 
+			command=self.mostrar_ajuda
+		)
+		ajuda_menu.add_separator()
+		ajuda_menu.add_command(
+			label="Mostrar informações de licença",
+			command=self.mostrar_licenca
+		)
+		ajuda_menu.add_command(
+			label="Sobre a aplicação",
+			command=self.mostrar_sobre
+		)
+	#end_def
+
+	# Funções de menu (implementação em MainApplication)
+	def inserir_titulo(self): pass
+	def alterar_titulo(self): pass
+	def excluir_titulo(self): pass
+	def consultar_titulos(self): pass
+	def consultar_titulo_criterio(self): pass
+	def mostrar_ajuda(self): pass
+	def mostrar_licenca(self): pass
+	def mostrar_sobre(self): pass
+
+	def setup_content(self):
+		main_frame = ttk.Frame(self.root, padding="10")
+		main_frame.pack(fill=tk.BOTH, expand=True)
+		
+		title_label = ttk.Label(
+			main_frame,
+			text="Bem-vindo(a) ao Gerenciador de Publicações!",
+			font=('Arial', 16, 'bold')
+		)
+		title_label.pack()
+		
+		desc_label = ttk.Label(
+			main_frame,
+			text="Lorem ipsum",
+			font=('Arial', 12, 'bold')
+			)
+		desc_label.pack(pady=20)
+		
+		footer_label = ttk.Label(
+			main_frame,
+			text="Lorem ipsum",
+			font=('Arial', 10, 'bold')
+		)
+		footer_label.pack(side=tk.BOTTOM, pady=10)
+	#end_def
+
+	def create_window(self, title: str, size: str = "400x300", resizable: bool = False) -> tk.Toplevel:
+		window = tk.Toplevel(self.root)
+		window.title(title)
+		window.geometry(size)
+
+		window.resizable(True, True)
+		if not resizable:
+			width, height = map(int, size.split('x'))
+			window.minsize(width, height)
+			window.maxsize(width, height)
+
+			window.resizable(False, False)
+		return window
+	#end_def
+	def create_dialog_window(self, title: str, message: str) -> tk.Toplevel:
+		return self.create_window(title, "300x200", False)
+	#end_def
 #end_class
 
 class MainApplication:
