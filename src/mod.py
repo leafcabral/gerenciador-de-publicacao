@@ -127,6 +127,8 @@ class GraphicsManager:
 		
 		self.setup_layout()
 		self.setup_content()
+
+		#ttk.Style().theme_use('clam')
 	#end_def
 
 	def setup_layout(self):
@@ -243,7 +245,7 @@ class MainApplication:
 		self.db_manager = DatabaseManager(
 			host="localhost",
 			user="root",
-			password="23204100",
+			password="serra",
 			database="publicacao"
 		)
 		self.graphics_manager = GraphicsManager(self.root, self)

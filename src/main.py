@@ -10,7 +10,6 @@ Programa para gerenciamento de banco de dados sobre publicações de livros.
 Autora original: Alessandra Aguiar Vilarinho 
 """
 import tkinter as tk
-from tkinter import ttk
 
 def main() -> None:
 	try:
