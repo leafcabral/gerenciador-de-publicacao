@@ -145,7 +145,8 @@ class GraphicsManager:
 		self.setup_layout()
 		self.setup_content()
 
-		#ttk.Style().theme_use('clam')
+		root.tk.call('source', 'res/forest-light.tcl')
+		ttk.Style().theme_use('forest-light')
 	#end_def
 
 	def setup_layout(self):
