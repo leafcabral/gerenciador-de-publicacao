@@ -131,7 +131,6 @@ class DatabaseManager:
 
 		return self.execute_query(query)
 	#end_def
-
 #end_class
 
 class GraphicsManager:
@@ -744,7 +743,47 @@ class MainApplication:
 
 	def mostrar_ajuda(self): pass
 	def mostrar_licenca(self): pass
-	def mostrar_sobre(self): pass
+
+	def mostrar_sobre(self):
+		about_window = self.graphics_manager.create_window("Sobre a Aplicação", "500x400")
+		
+		main_frame = ttk.Frame(about_window, padding=20)
+		main_frame.pack(fill=tk.BOTH, expand=True)
+
+		icon = tk.PhotoImage(file="res/icon.png").subsample(16)
+		icon_label = ttk.Label(main_frame, image=icon)
+		icon_label.image = icon
+		icon_label.pack(pady=10)
+
+		ttk.Label(
+			main_frame,
+			text="Gerenciador de Publicações",
+			font=('Segoe UI', 16, 'bold')
+		).pack()
+
+		ttk.Label(
+			main_frame,
+			text="Desenvolvido por ASMbleia",
+			font=('Segoe UI', 12)
+		).pack(pady=10)
+
+		ttk.Label(
+			main_frame,
+			text="""Ian Caliel Matos Cabral
+João Paulo Pipper da Silva
+Rafael Cabral Lopes
+Vitor Felberg Barcelos""",
+			font=('Segoe UI', 11),
+			justify=tk.CENTER
+		).pack(pady=10)
+
+		ttk.Label(
+			main_frame,
+			text="Serra, Brasil • 2024",
+			font=('Segoe UI', 10, 'italic'),
+			foreground="#7F8C8D"
+		).pack(pady=20)
+	#end_def
 #end_class
 
 class DeprecatedApplication:
