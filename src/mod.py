@@ -141,15 +141,24 @@ class GraphicsManager:
 		self.root.title("Gerenciador de Publicações")
 		self.root.geometry("800x600")
 		self.root.minsize(800, 600)
+		root.state('zoomed')
+		root.iconphoto(True, tk.PhotoImage(file='res/icon.png'))
 		
-		self.setup_layout()
+		self.setup_navbar()
 		self.setup_content()
+		self.status = {
+			'user': 'Conectado',
+			'database': 'publicacao'
+		}
+		self.statusbar = self.setup_statusbar()
 
+		style = ttk.Style()
 		root.tk.call('source', 'res/forest-light.tcl')
-		ttk.Style().theme_use('forest-light')
+		style.theme_use('forest-light')
+		style.configure('.', font=('Segoe UI', 12))
 	#end_def
 
-	def setup_layout(self):
+	def setup_navbar(self):
 		menubar = tk.Menu(self.root)
 		self.root.config(menu=menubar)
 		
@@ -202,26 +211,59 @@ class GraphicsManager:
 		main_frame = ttk.Frame(self.root, padding="10")
 		main_frame.pack(fill=tk.BOTH, expand=True)
 		
+		header_frame = ttk.Frame(main_frame)
+		header_frame.pack(fill=tk.X, pady=(0,20))
+
 		title_label = ttk.Label(
-			main_frame,
-			text="Bem-vindo(a) ao Gerenciador de Publicações!",
-			font=('Arial', 16, 'bold')
+			header_frame,
+			text="Gerenciador de Publicações",
+			font=('Segoe UI', 28, 'bold'),
+			foreground='#333333'
+		)
+		subtitle = ttk.Label(
+			header_frame,
+			text="Sistema de gerenciamento de banco de dados de livros",
 		)
 		title_label.pack()
-		
-		desc_label = ttk.Label(
+		subtitle.pack(pady=(0, 50))
+
+		welcome_frame = ttk.LabelFrame(
 			main_frame,
-			text="Lorem ipsum",
-			font=('Arial', 12, 'bold')
-			)
-		desc_label.pack(pady=20)
-		
+			text="Seja bem-vindo!",
+			padding=(10, 0, 10, 10),
+			labelanchor='n',
+		)
+		welcome_text = ttk.Label(
+			welcome_frame,
+# Se colocar tab no texto, o tkinter salta muito mais espaço 
+			text="""Use o menu de navegação para gerenciar suas publicações:\n
+• Inserir novos títulos
+• Alterar informações existentes
+• Excluir registros
+• Consultar dados""",
+			justify=tk.LEFT
+		)
+		# welcome_frame.pack(fill=tk.X, padx=700, pady=(0, 20), anchor=tk.CENTER)
+		welcome_frame.place(relx=0.5, rely=0.5, anchor=tk.CENTER)
+		welcome_text.pack()
+
 		footer_label = ttk.Label(
 			main_frame,
-			text="Lorem ipsum",
-			font=('Arial', 10, 'bold')
+			text="COPYLEFT 2025 ASMbleia • Desenvolvido por Ian, João, Rafael, Vitor • Serra, Brasil",
 		)
 		footer_label.pack(side=tk.BOTTOM, pady=10)
+	#end_def
+
+	def setup_statusbar(self):
+		statusbar = ttk.Label(
+			self.root,
+			text=f"  Usuário: {self.status['user']} | Banco de Dados: {self.status['database']}",
+			relief=tk.SUNKEN,
+			anchor=tk.W,
+			background="#f0f0f0"
+		)
+		statusbar.pack(side=tk.BOTTOM, fill=tk.X, ipady=2)
+		return statusbar
 	#end_def
 
 	def create_window(self, title: str, size: str = "400x300", resizable: bool = False) -> tk.Toplevel:
