@@ -16,9 +16,12 @@ Os integrantes são:
 Trabalho apresentado à disciplina de Programação IV do Curso de Informática para Internet do IFES campus Serra, como requisito parcial para a avaliação.
 Orientadora: Profa. Alessandra Aguiar Vilarinho.
 
+## Créditos
+- [Tema do aplicativo](https://github.com/rdbende/Forest-ttk-theme)
+
 ## Requisitos
-- **[Python X.Y](https://www.python.org/)** ou superior.
-- **[Tkinter X.Y](https://docs.python.org/3/library/tkinter.html)** ou superior.
+- **[Python](https://www.python.org/)** ou superior.
+- **[Tkinter](https://docs.python.org/3/library/tkinter.html)** ou superior.
 - **[MySql Connector para Python](https://pypi.org/project/mysql-connector-python/)**
 - **[MySql Server](https://www.mysql.com/)**
 
@@ -35,8 +38,6 @@ Linux:
 python3 src/main.py
 ```
 
-## Atalhos de teclado
-...
-
 ## Licença
+
 Este projeto está sob a Licença Pública Geral GNU versão 3 (GPL v3.0).
