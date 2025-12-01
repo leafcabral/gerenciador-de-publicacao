@@ -115,6 +115,23 @@ class DatabaseManager:
 		query = "SELECT * FROM titulos"
 		return self.execute_query(query)
 	#end_def
+
+	def consultar_por_criterio(self, criterio: list) -> list:
+		ID: str = criterio[0]
+		NOME: str = criterio[1]
+		DATA: list = criterio[2]
+
+		query: str = "SELECT * FROM titulos WHERE "
+
+		if len(ID) > 0: query += f"ID_TITULO = {ID},"
+		if len(NOME) > 0: query += f" TITULO_LIVRO = {NOME},"
+		if len(DATA[0]) > 0: query += f" DATA_PUBLICACAO BETWEEN {DATA[0]} AND {DATA[1]},"
+
+		query = query[:-1]
+
+		return self.execute_query(query)
+	#end_def
+
 #end_class
 
 class GraphicsManager:
@@ -220,9 +237,6 @@ class GraphicsManager:
 			window.resizable(False, False)
 		return window
 	#end_def
-	def create_dialog_window(self, title: str, message: str) -> tk.Toplevel:
-		return self.create_window(title, "300x200", False)
-	#end_def
 	def create_frame(self, parent, padding: int = 10) -> ttk.Frame:
 		frame = ttk.Frame(parent, padding=padding)
 		return frame
@@ -242,15 +256,57 @@ class MainApplication:
 	def __init__(self, root):
 		self.root = root
 
+		self.graphics_manager = GraphicsManager(self.root, self)
+
+		input_user_senha = self.graphics_manager.create_window("Banco de dados")
+
+		main_frame = self.graphics_manager.create_frame(input_user_senha)
+		main_frame.pack(fill=tk.BOTH, expand=True)
+		main_frame.grid_rowconfigure(3, weight=1)
+		main_frame.grid_columnconfigure(0, weight=1)
+
+		user_label = self.graphics_manager.create_label(main_frame, "Digite seu usuário:")
+		user_label.grid(row=0, column=0, padx=10, pady=10, sticky="nw")
+		user_input = self.graphics_manager.create_entry(main_frame)
+		user_input.grid(row=0, column=1, padx=10, pady=10, sticky="ew")
+
+		senha_label = self.graphics_manager.create_label(main_frame, "Digite sua senha:")
+		senha_label.grid(row=1, column=0, padx=10, pady=10, sticky="nw")
+		senha_input = self.graphics_manager.create_entry(main_frame)
+		senha_input.grid(row=1, column=1, padx=10, pady=10, sticky="ew")
+
+		erro_label = self.graphics_manager.create_label(main_frame, "", font=('Arial', 12))
+		erro_label.config(wraplength=350, justify="left", anchor="w")
+		erro_label.grid(row=2, column=0, columnspan=2, padx=10, pady=(0, 10), sticky="ew")
+
+		botao_frame = self.graphics_manager.create_frame(main_frame)
+		botao_frame.grid(row=3, column=0, columnspan=2, padx=10, pady=10, sticky="se")
+		botao = self.graphics_manager.create_button(botao_frame, "Ok", command=lambda:
+			self.verificar_user_senha(user_input, senha_input, erro_label, input_user_senha)
+		)
+		botao.pack(side=tk.RIGHT, padx=(5,0))
+	#end_def
+
+	def verificar_user_senha(self, user_input, senha_input, erro_label, window):
+		usuario: str = user_input.get("1.0", "end-1c")
+		senha: str = senha_input.get("1.0", "end-1c")
+
+		if len(usuario) == 0 or len(senha) == 0:
+			erro_label.config(text="Digite tanto o usuário quanto a senha.", foreground="red")
+			return
+
 		self.db_manager = DatabaseManager(
 			host="localhost",
-			user="root",
-			password="serra",
+			user=usuario,
+			password=senha,
 			database="publicacao"
 		)
-		self.graphics_manager = GraphicsManager(self.root, self)
-		
-		self.db_manager.connect()
+
+		try:
+			self.db_manager.connect()
+			window.destroy()
+		except:
+			erro_label.config(text="Digite um usuário ou senha válidos.", foreground="red")
 	#end_def
 
 	def verificar_formatacao_data(self, data: str) -> bool:
@@ -519,8 +575,81 @@ class MainApplication:
 		window.geometry(f"{min(2000, (len(column_names) * 150) + 50)}x500")
 	#end_def
 		
-	def consultar_titulo_criterio(self): pass
-	def handle_consultar_titulo_criterio(self): pass
+	def consultar_titulo_criterio(self):
+		resultado: list = []
+
+		window = self.graphics_manager.create_window("Consultar Títulos", "2000x500", True)
+		main_frame = self.graphics_manager.create_frame(window)
+		main_frame.pack(fill=tk.BOTH, expand=True)
+
+		id_label = self.graphics_manager.create_label(main_frame, "ID do livro:")
+		id_label.grid(row=0, column=0, padx=10, pady=10, sticky="w")
+		id_input = self.graphics_manager.create_entry(main_frame)
+		id_input.grid(row=0, column=1, pady=10, sticky="w")
+
+		titulo_label = self.graphics_manager.create_label(main_frame, "Título do livro:")
+		titulo_label.grid(row=1, column=0, padx=10, pady=10, sticky="w")
+		titulo_input = self.graphics_manager.create_entry(main_frame)
+		titulo_input.grid(row=1, column=1, columnspan=4, pady=10, sticky="w")
+
+		data_frame = self.graphics_manager.create_frame(main_frame)
+		data_frame.grid(row=2, column=0, columnspan=4)
+
+		data_label = self.graphics_manager.create_label(data_frame, "Data de publicação: entre")
+		data_label.grid(row=0, column=0, padx=10, pady=10, sticky="w")
+
+		data_antes_input = self.graphics_manager.create_entry(data_frame)
+		data_antes_input.grid(row=0, column=1, pady=10, sticky="w")
+		
+		e_label = self.graphics_manager.create_label(data_frame, "e")
+		e_label.grid(row=0, column=2, padx=10, pady=10, sticky="w")
+
+		data_depois_input = self.graphics_manager.create_entry(data_frame)
+		data_depois_input.grid(row=0, column=3, pady=10, sticky="w")
+
+		erro_label = self.graphics_manager.create_label(main_frame, "")
+		erro_label.config(foreground="red")
+		erro_label.grid(row=3, column=0, columnspan=4)
+
+		botao = self.graphics_manager.create_button(main_frame, "Consultar", command=lambda: self.handle_consultar_titulo_criterio(id_input, titulo_input, data_antes_input, data_depois_input, erro_label, resultado, tree))
+		botao.grid(row=4, column=0)
+
+		column_names = [i[0] for i in self.db_manager.execute_query("SHOW COLUMNS FROM titulos")]
+		tree = ttk.Treeview(main_frame, columns=column_names, show='headings')
+		tree.grid(row=5, column=0, columnspan=4)
+
+		for col in column_names:
+			tree.heading(col, text=col)
+			tree.column(col, width=150)
+
+		window.geometry(f"{min(2000, (len(column_names) * 150) + 50)}x500")
+	def handle_consultar_titulo_criterio(self, id_input, nome_input, data_antes_input, data_depois_input, erro_label, resultado, tree):
+		ID: str = id_input.get("1.0", "end-1c").strip()
+		NOME: str = nome_input.get("1.0", "end-1c").strip()
+		DATA_ANTES: list = data_antes_input.get("1.0", "end-1c").strip()
+		DATA_DEPOIS: list = data_depois_input.get("1.0", "end-1c").strip()
+
+		if not ID and not NOME and not DATA_ANTES and not DATA_DEPOIS:
+			erro_label.config(text="Todos os campos estão vazios.")
+			return
+		elif DATA_ANTES and DATA_DEPOIS and (self.verificar_formatacao_data(data_antes_input) and self.verificar_formatacao_data(data_depois_input)):
+			erro_label.config(text="Verifique se a formatação da data está correta: yyyy-mm-dd, yyyy mm dd ou yyyy/mm/dd.\nOu então verifique se digitou ano, mês ou dia válido.")
+			return
+		
+		data_antes_formatada: str = DATA_ANTES.replace(' ', '-').replace('/', '-')
+		data_depois_formatada: str = DATA_DEPOIS.replace(' ', '-').replace('/', '-')
+
+		criterio: list = [ID, NOME, [data_antes_formatada, data_depois_formatada]]
+
+		resultado = self.db_manager.consultar_por_criterio(criterio)
+
+		if not resultado:
+			erro_label.config(text="Nenhuma publicação encontrada no banco de dados.")
+			return
+		
+		for row in resultado:
+			tree.insert('', tk.END, values=row)
+	#end_def
 
 	def mostrar_ajuda(self): pass
 	def mostrar_licenca(self): pass
