@@ -268,7 +268,7 @@ Desenvolvido para atender às necessidades de editoras, bibliotecas e profission
 		right_frame.grid(row=0, column=1, sticky="nsew", pady=(20,0))
 		
 		actions = [
-			("🔐 Conectar ao Banco", lambda: messagebox.showerror("Conectar ao Banco", "Ainda não implementado")),
+			("🔐 Conectar ao Banco", self.main_app.conectar_banco),
 			("➕ Inserir Título", self.main_app.inserir_titulo),
 			("✏️ Alterar Título", self.main_app.alterar_titulo),
 			("🗑️ Excluir Título", self.main_app.excluir_titulo),
@@ -419,7 +419,7 @@ class MainApplication:
 	#end_def
 
 	def conectar_banco(self):
-		messagebox.showinfo("Conectar ao Banco", "Função ainda não implementada.")
+		messagebox.showerror("Conectar ao Banco", "Ainda não implementado")
 	#end_def
 
 	def inserir_titulo(self):
