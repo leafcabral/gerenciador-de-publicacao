@@ -2,12 +2,12 @@
 Até 2 Dez. 2025 (23:50)
 
 ## Necessário para a entrega
-- HOLE IN ONE ?!?!?!?!?!?!?!
+- Colocar dialogo de usuário e senha para sempre estar na frente da página inicial
+- Botão de conectar ao banco
 
 ## Necessário para ficar aceitável
-- HOLE IN TWO ?!?!?!?!?!?!?!
-
+- HOLE IN ONE
 
 ## Extras
 - Log de alterações
-- Colocar nas variáveis o seu tipo
+- Colocar type hints em todo o código
