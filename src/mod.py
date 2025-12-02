@@ -297,7 +297,7 @@ Desenvolvido para atender às necessidades de editoras, bibliotecas e profission
 			("🔐 Conectar ao Banco", self.main_app.conectar_banco),
 			("➕ Inserir Título", self.main_app.inserir_titulo),
 			("✏️ Alterar Título", self.main_app.alterar_titulo),
-			("🗑️ Excluir Título", self.main_app.excluir_titulo),
+			("🗑 Excluir Título", self.main_app.excluir_titulo),
 			("🔍 Consultar Todos os Títulos", self.main_app.consultar_titulos),
 			("📊 Consultar por Critério", self.main_app.consultar_titulo_criterio)
 		]
