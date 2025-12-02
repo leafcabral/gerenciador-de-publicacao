@@ -9,25 +9,12 @@ Programa para gerenciamento de banco de dados sobre publicações de livros.
 
 Autora original: Alessandra Aguiar Vilarinho 
 """
-import tkinter as tk
 
 def main() -> None:
-	try:
-		import mysql.connector
-	except ModuleNotFoundError:
-		print("""
-			\rÉ necessário ter o mysql-connector instalado em sua máquina para utilizar esse programa.
-			\rUtilize os seguintes comandos para instala-lo, a dependender do seu sistema operacional:
-			\r\tWindows: pip install mysql-connector-python
-			\r\tLinux: pip3 install mysql-connector-python
-		""")
-		return
-	
 	import mod
-	
-	root = tk.Tk()
-	app = mod.MainApplication(root)
-	root.mainloop()
+
+	app = mod.MainApplication()
+	app.root.mainloop()
 
 if __name__ == "__main__":
 	main()

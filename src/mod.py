@@ -11,7 +11,6 @@ Classe MainApplication originalmente por: Alessandra Aguiar Vilarinho.
 """
 import tkinter as tk
 from tkinter import ttk, messagebox
-import mysql.connector
 
 class DatabaseManager:
 	def __init__(self, host: str, user: str, password: str, database: str):
@@ -20,6 +19,18 @@ class DatabaseManager:
 		self.password = password
 		self.database = database
 		self.connection = None
+
+		try:
+			import mysql.connector
+		except ModuleNotFoundError:
+			messagebox.showerror(
+				"Não foi possível encontrar dependência",
+				"""É necessário ter o mysql-connector instalado em sua máquina para utilizar esse programa.\n
+Utilize os seguintes comandos para instala-lo, a dependender do seu sistema operacional:
+    Windows: pip install mysql-connector-python
+    Linux: pip3 install mysql-connector-python""")
+			from sys import exit
+			exit(1)
 	#end_def
 
 	def connect(self):
@@ -149,8 +160,13 @@ class GraphicsManager:
 		self.root.title("Gerenciador de Publicações")
 		self.root.geometry("800x600")
 		self.root.minsize(800, 600)
-		root.attributes('-zoomed', True)
 		root.iconphoto(True, tk.PhotoImage(file='res/icon.png'))
+
+		import platform
+		if platform.system() == 'Windows':
+			root.state("zoomed")
+		else:
+			root.attributes('-zoomed', True)
 		
 		self.root.tk.call('source', 'res/forest-light.tcl')
 		style = ttk.Style()
@@ -361,8 +377,8 @@ Desenvolvido para atender às necessidades de editoras, bibliotecas e profission
 #end_class
 
 class MainApplication:
-	def __init__(self, root):
-		self.root = root
+	def __init__(self):
+		self.root = tk.Tk()
 
 		self.graphics_manager = GraphicsManager(self.root, self)
 
