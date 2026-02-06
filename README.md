@@ -1,3 +1,8 @@
+> ***⚠️ Repositório Arquivado:*** Esse projeto não será ativamente mantido.
+>
+> Esse repositório é *read-only*. Arquivado no dia 06/02/2026, meses após
+> a conclusão e entrega do trabalho escolar.
+
 # Gerenciador de Publicações
 
 Uma aplicação gráfica em Python para gerenciar livros em uma biblioteca,
@@ -52,3 +57,4 @@ A aplicação utiliza um tema personalizado para o *Tkinter*:
 
 Este projeto está sob a Licença Pública Geral GNU versão 3 (GPL v3.0). <br>
 Consulte o arquivo [LICENSE](LICENSE) para mais informações.
+
